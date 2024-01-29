@@ -132,6 +132,4 @@ openai token计算✓
 
 ### **技术交流**
 
-
-
-<img src="images/qrcode.png"  />
+公众号：fay数字人
