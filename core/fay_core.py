@@ -38,9 +38,10 @@ def send_for_answer(msg):
         fay_booter.feiFei.last_quest_time = time.time()
 
         #消息保存
-        contentdb = content_db.new_instance()    
-        contentdb.add_content('member', 'agent', msg.replace('主人语音说了：', '').replace('主人文字说了：', ''))
-        wsa_server.get_web_instance().add_cmd({"panelReply": {"type":"member","content":msg.replace('主人语音说了：', '').replace('主人文字说了：', '')}})
+        contentdb = content_db.new_instance()
+        if "执行任务->" not in msg:
+            contentdb.add_content('member', 'say', msg.replace('主人语音说了：', '').replace('主人文字说了：', ''))
+            wsa_server.get_web_instance().add_cmd({"panelReply": {"type":"member","content":msg.replace('主人语音说了：', '').replace('主人文字说了：', '')}})
 
         # 发送给数字人端    
         if not config_util.config["interact"]["playSound"]: 
@@ -62,7 +63,7 @@ def send_for_answer(msg):
             fay_booter.feiFei.on_interact(interact)
 
         #消息保存
-        contentdb.add_content('fay','agent', text)
+        contentdb.add_content("fay", "llm" if agent_service.agent.is_use_llm else "agent", text)
         wsa_server.get_web_instance().add_cmd({"panelReply": {"type":"fay","content":text}})
         util.log(1, 'ReAct Agent或LLM Chain处理总时长：{} ms'.format(math.floor((time.time() - fay_booter.feiFei.last_quest_time) * 1000)))
 

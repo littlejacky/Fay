@@ -98,7 +98,7 @@ def agent_start():
     check_and_execute_thread.start()
 
     #初始计划
-    fay_core.send_for_answer("""执行任务-->
+    fay_core.send_for_answer("""执行任务->
         你是一个智慧农业实验箱里的ai，你的责任是陪伴主人生活、工作，以及协助主人打理好农业种植箱里的农作物：
         1、在每天早上8点、中午12点、晚上10点检查农业种植箱的状态是否附合设定的预期执行，如果不符合请告知我调整。
         2、每天12点“语音提醒主人吃饭”;  

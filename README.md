@@ -76,10 +76,27 @@ python main.py
 
 2024.02.05:
 
-调整对话内容存储逻辑
-新增tts合成开关
+解决聊天记录存储线程同步问题
+
+*新增tts合成开关
+
 增强funasr稳定性
+
 增加开启服务提醒
+
+fay.db记录上区分agent还是llm回应
+
+*更换最新model gpt-4-0125-preview  
+
+*优化聊天prompt
+
+修复agent meney里的权重fn bug
+
+删除时间查询tool
+
+执行任务触发无需在聊天窗口显示及db中保存
+
+修复删除日程bug
 
 2024.01.29:
 

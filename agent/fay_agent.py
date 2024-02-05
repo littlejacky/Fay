@@ -1,5 +1,4 @@
 import os
-import time
 import math
 
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -8,7 +7,7 @@ from langchain.memory import VectorStoreRetrieverMemory
 import faiss
 from langchain.docstore import InMemoryDocstore
 from langchain.vectorstores import FAISS
-from langchain.agents import AgentExecutor, Tool, ZeroShotAgent, initialize_agent, agent_types
+from langchain.agents import Tool, initialize_agent, agent_types
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 
@@ -27,11 +26,8 @@ from agent.tools.getOnRunLinkage import getOnRunLinkage
 from agent.tools.SetChatStatus import SetChatStatus
 from langchain.callbacks import get_openai_callback
 from langchain.retrievers import TimeWeightedVectorStoreRetriever
-from langchain.memory import ConversationBufferWindowMemory
 
 import utils.config_util as utils
-from core import wsa_server
-import fay_booter
 from utils import util
 
 
@@ -45,10 +41,10 @@ class FayAgentCore():
         embedding_fn = OpenAIEmbeddings()
 
         #创建llm
-        self.llm = ChatOpenAI(model="gpt-4-1106-preview", verbose=True)
+        self.llm = ChatOpenAI(model="gpt-4-0125-preview", verbose=True)
 
         #创建向量数据库
-        def relevance_score_fn(self, score: float) -> float:
+        def relevance_score_fn(score: float) -> float:
             return 1.0 - score / math.sqrt(2)
         vectorstore = FAISS(embedding_fn, index, InMemoryDocstore({}), {}, relevance_score_fn=relevance_score_fn)
 
@@ -85,11 +81,11 @@ class FayAgentCore():
                 func=my_timer.run,
                 description=my_timer.description
             ),
-            Tool(
-                name=query_time_tool.name,
-                func=query_time_tool.run,
-                description=query_time_tool.description
-            ),
+            # Tool(
+            #     name=query_time_tool.name,
+            #     func=query_time_tool.run,
+            #     description=query_time_tool.description
+            # ),
             Tool(
                 name=weather_tool.name,
                 func=weather_tool.run,
@@ -148,7 +144,8 @@ class FayAgentCore():
                          max_history=5, handle_parsing_errors=True)
         
         #llm chain  用于聊天
-        self.is_chat = False#聊天状态
+        self.is_chat = False#当前是聊天状态
+        self.is_use_llm = False#标记一轮对话是否使用llm回复的
 
         #记录一轮执行有无调用过say tool
         self.is_use_say_tool = False   
@@ -157,7 +154,7 @@ class FayAgentCore():
         self.total_tokens = 0
         self.total_cost = 0
 
-
+    #记忆prompt
     def format_history_str(self, str):
         result = ""
         history_string = str['history']
@@ -203,22 +200,22 @@ class FayAgentCore():
         return result
 
     
-    def get_llm_chain(self, history):
+    def get_llm_chain(self):
         tools_prompt = "["
-        tool_names = [tool.name for tool in self.tools if tool.name != SetChatStatus().name and tool.name != Say().name]
+        tool_names = [tool.name for tool in self.tools if tool.name != SetChatStatus().name and tool.name != Say().name and tool.name != Knowledge().name]
         tools_prompt += "、".join(tool_names) + "]"
         template = """
-现在时间是：now_time。
-你是一个智能家居系统中的AI，负责协助主人处理日常事务和智能设备的操作。当主人提出要求时，如果需要使用特定的工具或执行特定的操作，请严格回复“agent: {human_input}”字符串。如果主人只是进行普通对话或询问信息，直接以文本内容回答即可。你可以使用的工具或执行的任务包括：。
+现在时间是：{now_time}。
+你是一个智慧农业系统中的AI，负责协助主人打理农作物和陪伴主人生活、工作。当主人提出要求时，如果必须使用特定的工具或执行特定的操作，请回复“agent:{human_input}”。如果主人只是进行普通对话或询问信息，直接以文本内容回答即可。你可以使用的工具或执行的任务包括：
 """ +  tools_prompt + "等。" +"""
 请依据以下信息回复主人：
-chat_history
+{chat_history}
 
 input：
 {human_input}
-output：""".replace("chat_history", history).replace("now_time", QueryTime().run(""))
+output："""
         prompt = PromptTemplate(
-                    input_variables=["human_input"], template=template
+                    input_variables=["human_input", "chat_history", "now_time"], template=template
                 )
         
         llm_chain = LLMChain(
@@ -238,14 +235,16 @@ output：""".replace("chat_history", history).replace("now_time", QueryTime().ru
         try:
             #判断执行聊天模式还是agent模式，双模式在运行过程中会主动切换
             if self.is_chat:
-                llm_chain = self.get_llm_chain(history)
+                self.is_use_llm = True
+                llm_chain = self.get_llm_chain()
                 with get_openai_callback() as cb:
-                    result = llm_chain.predict(human_input=input_text.replace('主人语音说了：', '').replace('主人文字说了：', ''))
+                    result = llm_chain.predict(human_input=input_text.replace('主人语音说了：', '').replace('主人文字说了：', ''), chat_history=history, now_time=QueryTime().run(""))
                     self.total_tokens = self.total_tokens + cb.total_tokens
                     self.total_cost = self.total_cost + cb.total_cost
                     util.log(1, "本次消耗token:{}， Cost (USD):{}，共消耗token:{}， Cost (USD):{}".format(cb.total_tokens, cb.total_cost, self.total_tokens, self.total_cost))
 
             if "agent:" in result.lower() or not self.is_chat:
+                self.is_use_llm = False
                 self.is_chat = False
                 input_text = result.lower().replace("agent:", "") if "agent:" in result.lower() else input_text.replace('主人语音说了：', '').replace('主人文字说了：', '')
                 agent_prompt = """
