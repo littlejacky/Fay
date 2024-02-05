@@ -25,7 +25,7 @@ import platform
 from ai_module import yolov8
 from agent import agent_service
 import fay_booter
-from core.content_db import Content_Db
+from core import content_db
 if platform.system() == "Windows":
     import sys
     sys.path.append("test/ovr_lipsync")
@@ -38,7 +38,7 @@ def send_for_answer(msg):
         fay_booter.feiFei.last_quest_time = time.time()
 
         #消息保存
-        contentdb = Content_Db()    
+        contentdb = content_db.new_instance()    
         contentdb.add_content('member', 'agent', msg.replace('主人语音说了：', '').replace('主人文字说了：', ''))
         wsa_server.get_web_instance().add_cmd({"panelReply": {"type":"member","content":msg.replace('主人语音说了：', '').replace('主人文字说了：', '')}})
 
@@ -219,14 +219,17 @@ class FeiFei:
                 self.speaking = False
             else:
                 util.printInfo(1, '菲菲', '({}) {}'.format(self.__get_mood_voice(), self.a_msg))
-                util.log(1, '合成音频...')
-                tm = time.time()
-                #文字也推送出去，为了ue5
-                result = self.sp.to_sample(self.a_msg, self.__get_mood_voice())
-                util.log(1, '合成音频完成. 耗时: {} ms 文件:{}'.format(math.floor((time.time() - tm) * 1000), result))
-                if result is not None:            
-                    MyThread(target=self.__send_or_play_audio, args=[result, styleType]).start()
-                    return result
+                if config_util.config["source"]["tts_enabled"]:
+                    util.log(1, '合成音频...')
+                    tm = time.time()
+                    result = self.sp.to_sample(self.a_msg, self.__get_mood_voice())
+                    util.log(1, '合成音频完成. 耗时: {} ms 文件:{}'.format(math.floor((time.time() - tm) * 1000), result))
+                    if result is not None:            
+                        MyThread(target=self.__send_or_play_audio, args=[result, styleType]).start()
+                        return result
+                else:
+                    util.log(1, '问答处理总时长：{} ms'.format(math.floor((time.time() - self.last_quest_time) * 1000)))
+                    self.speaking = False
         except BaseException as e:
             print(e)
         self.speaking = False
