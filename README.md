@@ -12,9 +12,9 @@
 
 **请先想明白**
 
-如果你需要是一个线上线下的销售员，请移步[`带货完整版`](https://github.com/TheRamU/Fay/tree/fay-sales-edition)                       
+如果你需要是一个线上线下的销售员，请移步[`带货完整版`](https://github.com/xszyou/Fay/tree/fay-sales-edition)                       
 
-如果你需要的是一个人机交互的数字人助理（当然，你也可以命令它开关设备），请移步 [`助理完整版`](https://github.com/TheRamU/Fay/tree/fay-assistant-edition)
+如果你需要的是一个人机交互的数字人助理（当然，你也可以命令它开关设备），请移步 [`助理完整版`](https://github.com/xszyou/Fay/tree/fay-assistant-edition)
 
 
 
@@ -74,6 +74,22 @@ python main.py
 
 ### **更新日志**
 
+2024.02.05:
+
+调整对话内容存储逻辑
+新增tts合成开关
+增强funasr稳定性
+增加开启服务提醒
+
+2024.01.29:
+
+增强funasr稳定性
+
+2024.01.22:
+
+增强开启控制器时稳定性
+
+
 2024.01.15:
 
 新增前置词唤醒方式；
@@ -123,6 +139,4 @@ openai token计算✓
 
 ### **技术交流**
 
-
-
-<img src="images/qrcode.png"  />
+公众号：fay数字人

@@ -13,7 +13,7 @@ from scheduler.thread_manager import MyThread
 from utils import config_util, util
 from core import wsa_server
 from core import fay_core
-from core.content_db import Content_Db
+from core import content_db
 from ai_module import yolov8
 
 
@@ -150,7 +150,7 @@ def api_send_v1_chat_completions():
 
 @__app.route('/api/get-msg', methods=['post'])
 def api_get_Msg():
-    contentdb = Content_Db()
+    contentdb = content_db.new_instance()
     list = contentdb.get_list('all','desc',1000)
     relist = []
     i = len(list)-1

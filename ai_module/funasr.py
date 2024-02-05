@@ -10,6 +10,7 @@ import _thread as thread
 
 from core import wsa_server
 from utils import config_util as cfg
+from utils import util
 
 class FunASR:
     # 初始化
@@ -23,11 +24,14 @@ class FunASR:
         self.__task_id = ''
         self.done = False
         self.finalResults = ""
+        self.__reconnect_delay = 1
+        self.__reconnecting = False
+
 
 
     def __on_msg(self):
         pass
-
+    
     # 收到websocket消息的处理
     def on_message(self, ws, message):
         try:
@@ -51,11 +55,28 @@ class FunASR:
     # 收到websocket错误的处理
     def on_close(self, ws, code, msg):
         self.__connected = False
-        print("### CLOSE:", msg)
+        util.log(1, f"### CLOSE:{msg}")
+        self.__ws = None
+        self.__attempt_reconnect()
 
     # 收到websocket错误的处理
     def on_error(self, ws, error):
-        print("### error:", error)
+        util.log(1, f"### error:{error}")
+        self.__ws = None
+        self.__attempt_reconnect()
+
+    #重连
+    def __attempt_reconnect(self):
+        if not self.__reconnecting:
+            self.__reconnecting = True
+            util.log(1, "尝试重连funasr...")
+            while not self.__connected:
+                time.sleep(self.__reconnect_delay)
+                self.start()
+                self.__reconnect_delay *= 2  
+            self.__reconnect_delay = 1  
+            self.__reconnecting = False
+
 
     # 收到websocket连接建立的处理
     def on_open(self, ws):

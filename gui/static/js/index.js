@@ -85,7 +85,7 @@ new Vue({
                 value: 'front',
                 label: '前置词'
             }],
-
+            tts_enabled: true
         }
     },
     created() {
@@ -262,6 +262,7 @@ new Vue({
                             _this.wake_word_enabled = source["wake_word_enabled"]
                             _this.wake_word = source["wake_word"]
                             _this.wake_word_type = source["wake_word_type"]
+                            _this.tts_enabled = source["tts_enabled"]
                             _this.play_sound_enabled = interact["playSound"]
                             _this.visualization_detection_enabled = interact["visualization"]
                             _this.source_record_enabled = source["record"]["enabled"]
@@ -327,7 +328,8 @@ new Vue({
                         },
                         "wake_word_enabled": this.wake_word_enabled,
                         "wake_word": this.wake_word,
-                        "wake_word_type": this.wake_word_type
+                        "wake_word_type": this.wake_word_type,
+                        "tts_enabled": this.tts_enabled
                     },
                     "attribute": {
                         "voice": this.attribute_voice,
@@ -499,6 +501,10 @@ new Vue({
             let text = _this.send_msg;
             if (!text) {
                 alert('请输入内容');
+                return;
+            }
+            if (this.live_state != 1){
+                alert('请先开启服务');
                 return;
             }
             _this.send_msg = ''
