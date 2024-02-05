@@ -70,7 +70,8 @@ new Vue({
                 name: '2',
                 content: 'Tab 2 content'
             }],
-            is_connect: false
+            is_connect: false,
+            remote_audio_connect: false
 
         }
     },
@@ -213,6 +214,11 @@ new Vue({
                         _this.postData()
                     }
                 }
+                let remote_audio_connect = data.remote_audio_connect
+                if(remote_audio_connect != undefined){
+                    _this.remote_audio_connect = remote_audio_connect
+                }
+
             }
         },
         getData() {

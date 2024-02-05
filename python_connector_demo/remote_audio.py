@@ -35,7 +35,7 @@ def receive_audio(client):
                     break
             print("receive audio end:{}".format(len(filedata)), end="")
 
-            filename = "sample/recv_{}.wav".format(time.time())
+            filename = "samples/recv_{}.wav".format(time.time())
             with open(filename, "wb") as f:
                 f.write(filedata)
                 f.close()

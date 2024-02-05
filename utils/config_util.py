@@ -23,6 +23,8 @@ key_chatgpt_api_key = None
 key_chat_module = None
 ltp_mode = None
 key_fast_api_key = None
+is_proxy = None
+proxy_config = None
 
 def load_config():
     global config
@@ -45,6 +47,8 @@ def load_config():
     global key_lingju_api_authcode
     global ltp_mode 
     global key_fast_gpt_key
+    global proxy_config
+    global is_proxy
 
 
     system_config = ConfigParser()
@@ -67,6 +71,8 @@ def load_config():
     key_lingju_api_authcode = system_config.get('key', 'lingju_api_authcode')
     ltp_mode = system_config.get('key', 'ltp_mode')
     key_fast_gpt_key = system_config.get('key', 'fast_gpt_key')
+    proxy_config = system_config.get('key', 'proxy_config')
+    is_proxy = system_config.get('key', 'is_proxy')
 
     config = json.load(codecs.open('config.json', encoding='utf-8'))
 

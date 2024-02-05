@@ -12,6 +12,9 @@ from gevent import pywsgi
 from scheduler.thread_manager import MyThread
 from utils import config_util
 from core import wsa_server
+from core.interact import Interact
+from core import fay_core
+from utils import util
 
 __app = Flask(__name__)
 CORS(__app, supports_credentials=True)
@@ -89,6 +92,30 @@ def api_stop_live():
     time.sleep(1)
     wsa_server.get_web_instance().add_cmd({"liveState": 0})
     return '{"result":"successful"}'
+
+wx_msg_msg_id = ''
+@__app.route('/api/get-wx-msg', methods=['post'])
+def api_get_wx_msg():
+    global wx_msg_msg_id
+    if fay_booter.__running:
+        data = request.json
+        info = data['events'][0]
+        if wx_msg_msg_id != info['msg_id']:
+            wx_msg_msg_id = info['msg_id']
+            if info['decoded_type'] == 'enter':
+                #进入
+                interact = Interact("live", 2, {"user": info['nickname'], "msg": "来了"})
+            elif info['decoded_type'] == 'comment':
+                #留言
+                interact = Interact("live", 1, {"user": info['nickname'], "msg": info['content']})
+                fay_core.new_instance().last_quest_time = time.time()
+            elif info['decoded_type'] == 'gift':
+                #礼物
+                interact = Interact("live", 3, {"user": info['nickname'], "msg": "礼物", "gift": '礼物', "amount": info['gift_num'],})
+            MyThread(target=fay_core.new_instance().on_interact, args=[interact]).start()
+    else:
+        util.log(1, "请先进行开启")    
+    return '{"result":"successful"}' 
 
 
 @__app.route('/', methods=['get'])

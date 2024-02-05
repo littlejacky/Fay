@@ -21,7 +21,7 @@ feiFei = None
 viewerListener: Viewer = None
 recorderListener: Recorder = None
 
-__running = True
+__running = False
 
 
 class ViewerListener(Viewer):
@@ -96,7 +96,10 @@ class RecorderListener(Recorder):
         except Exception as e:
                 print(e)
                 util.log(1, "请检查设备是否有误，再重新启动!")
-                    
+
+    def is_remote(self):
+        return False
+                                        
         
 
 
@@ -156,7 +159,9 @@ class DeviceInputListener(Recorder):
         self.ngrok = ngrok_util.NgrokCilent(clientId)
         self.ngrok.start()
         
-
+    def is_remote(self):
+        return True
+                    
 
 
 def console_listener():
