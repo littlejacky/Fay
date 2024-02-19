@@ -70,6 +70,10 @@ Repository URL: https://github.com/xszyou/fay-android
 
 
 ### **Changelog**
+2024.02.19:
+
+Add openai base URL configuration ✓
+
 2024.01.08:
 
 Remote audio connection status display ✓
