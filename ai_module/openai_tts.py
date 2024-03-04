@@ -29,7 +29,7 @@ class Speech:
             'Authorization': f'Bearer {self.api_key}',
             'Content-Type': 'application/json'
         }
-        url = "https://api.openai.com/v1/audio/speech"
+        url = config_util.gpt_base_url + "/audio/speech"
         query = {
             "model": "tts-1-hd",#tts-1、tts-1-hd
             "input": text,
@@ -52,7 +52,7 @@ class Speech:
         return file_url
 
 if __name__ == '__main__':
-    openai_tts = Speech(api_key='')  # 替换为您的 OpenAI API Key
+    openai_tts = Speech()
     text = "你好！我是FAY！今天天气真好！"
     audio_file_url = openai_tts.to_sample(text)
 

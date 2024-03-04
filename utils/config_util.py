@@ -12,6 +12,7 @@ key_xf_ltp_app_id = None
 key_xf_ltp_api_key = None
 key_ngrok_cc_id = None
 key_gpt_api_key = None
+gpt_base_url = None
 ASR_mode = None
 local_asr_ip = None 
 local_asr_port = None 
@@ -27,6 +28,7 @@ def load_config():
     global key_xf_ltp_api_key
     global key_ngrok_cc_id
     global key_gpt_api_key
+    global gpt_base_url
     global ASR_mode
     global local_asr_ip 
     global local_asr_port
@@ -41,6 +43,7 @@ def load_config():
     key_xf_ltp_api_key = system_config.get('key', 'xf_ltp_api_key')
     key_ngrok_cc_id = system_config.get('key', 'ngrok_cc_id')
     key_gpt_api_key = system_config.get('key', 'gpt_api_key')
+    gpt_base_url = system_config.get('key', 'gpt_base_url')
     ASR_mode = system_config.get('key', 'ASR_mode')
     local_asr_ip = system_config.get('key', 'local_asr_ip')
     local_asr_port = system_config.get('key', 'local_asr_port')

@@ -35,6 +35,7 @@ class FayAgentCore():
     def __init__(self):
         utils.load_config()
         os.environ['OPENAI_API_KEY'] = utils.key_gpt_api_key
+        os.environ['OPENAI_API_BASE'] = utils.gpt_base_url
         #使用open ai embedding
         embedding_size = 1536  # OpenAIEmbeddings 的维度
         index = faiss.IndexFlatL2(embedding_size)
