@@ -11,6 +11,8 @@ from scheduler.thread_manager import MyThread
 from utils import util
 from utils import config_util as cfg
 import numpy as np
+import tempfile
+import wave
 # 启动时间 (秒)
 _ATTACK = 0.2
 
@@ -42,13 +44,23 @@ class Recorder:
         if cfg.config['source']['wake_word_enabled']:
             self.timer = threading.Timer(60, self.reset_wakeup_status)  # 60秒后执行reset_wakeup_status方法
 
+
     def asrclient(self):
-        asrcli = None
         if self.ASRMode == "ali":
             asrcli = ALiNls()
         elif self.ASRMode == "funasr":
             asrcli = FunASR()
         return asrcli
+
+    def save_buffer_to_file(self, buffer):
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav", dir="cache_data")
+        wf = wave.open(temp_file.name, 'wb')
+        wf.setnchannels(1)
+        wf.setsampwidth(2)  
+        wf.setframerate(16000)
+        wf.writeframes(buffer)
+        wf.close()
+        return temp_file.name
 
     def __get_history_average(self, number):
         total = 0
@@ -79,12 +91,15 @@ class Recorder:
     def reset_wakeup_status(self):
         self.wakeup_matched = False        
 
-    def __waitingResult(self, iat: asrclient):
+    def __waitingResult(self, iat: asrclient, audio_data):
         if self.__fay.playing:
             return
         self.processing = True
         t = time.time()
         tm = time.time()
+        if self.ASRMode == "funasr":
+            file_url = self.save_buffer_to_file(audio_data)
+            self.__aLiNls.send_url(file_url)
         # 等待结果返回
         while not iat.done and time.time() - t < 1:
             time.sleep(0.01)
@@ -92,6 +107,7 @@ class Recorder:
         util.log(1, "语音处理完成！ 耗时: {} ms".format(math.floor((time.time() - tm) * 1000)))
         if len(text) > 0:
             if cfg.config['source']['wake_word_enabled']:
+
                 if cfg.config['source']['wake_word_type'] == 'common':
 
                     if not self.wakeup_matched:
@@ -105,14 +121,12 @@ class Recorder:
                         if wake_up:
                             self.wakeup_matched = True  # 唤醒成功
                             util.log(1, "唤醒成功！")
-                            self.on_speaking('唤醒')
+                            self.on_speaking(text)
                             self.processing = False
                             self.timer.cancel()  # 取消之前的计时器任务
                         else:
                             util.log(1, "[!] 待唤醒！")
                             wsa_server.get_web_instance().add_cmd({"panelMsg": ""})
-                
-  
                     else:
                         self.on_speaking(text)
                         self.processing = False
@@ -125,15 +139,20 @@ class Recorder:
                     wake_up = False
                     for word in wake_word_list:
                         if text.startswith(word):
+                            wake_up_word = word
                             wake_up = True
                             break
                     if wake_up:
                         util.log(1, "唤醒成功！")
-                        self.on_speaking(text)
+                        #去除唤醒词后语句
+                        question = text[len(wake_up_word):].lstrip()
+                        self.on_speaking(question)
                         self.processing = False
                     else:
                         util.log(1, "[!] 待唤醒！")
                         wsa_server.get_web_instance().add_cmd({"panelMsg": ""})
+
+
             else:
                   self.on_speaking(text)
                   self.processing = False
@@ -159,6 +178,7 @@ class Recorder:
         last_mute_time = time.time()
         last_speaking_time = time.time()
         data = None
+        concatenated_audio = bytearray()
         while self.__running:
             try:
                 data = stream.read(1024, exception_on_overflow=False)
@@ -170,6 +190,7 @@ class Recorder:
             if not data:
                 continue
             
+
             if  cfg.config['source']['record']['enabled'] and not self.is_remote():
                 if len(cfg.config['source']['record'])<3:
                     channels = 1
@@ -180,6 +201,7 @@ class Recorder:
                 data = np.reshape(data, (-1, channels))  # reshaping the array to split the channels
                 mono = data[:, 0]  # taking the first channel
                 data = mono.tobytes()  
+
 
             level = audioop.rms(data, 2)
             if len(self.__history_data) >= 5:
@@ -204,13 +226,17 @@ class Recorder:
                     soon = True  #
                     isSpeaking = True  #用户正在说话
                     util.log(3, "聆听中...")
+                    concatenated_audio.clear()
                     self.__aLiNls = self.asrclient()
                     try:
                         self.__aLiNls.start()
                     except Exception as e:
                         print(e)
                     for buf in self.__history_data:
-                        self.__aLiNls.send(buf)
+                        if self.ASRMode == "ali":
+                            self.__aLiNls.send(buf)
+                        else:
+                            concatenated_audio.extend(buf)
             else:
                 last_mute_time = time.time()
                 if isSpeaking:
@@ -219,9 +245,12 @@ class Recorder:
                         self.__aLiNls.end()
                         util.log(1, "语音处理中...")
                         self.__fay.last_quest_time = time.time()
-                        self.__waitingResult(self.__aLiNls)
+                        self.__waitingResult(self.__aLiNls, concatenated_audio)
             if not soon and isSpeaking:
-                self.__aLiNls.send(data)
+                if self.ASRMode == "ali":
+                    self.__aLiNls.send(data)
+                else:
+                    concatenated_audio.extend(data)
      
 
     def set_processing(self, processing):
@@ -242,8 +271,7 @@ class Recorder:
     @abstractmethod
     def get_stream(self):
         pass
-        
-     #TODO Edit by xszyou on 20231225:子类实现返回是否远程音频
+
     @abstractmethod
     def is_remote(self):
         pass

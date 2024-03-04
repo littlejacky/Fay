@@ -74,6 +74,16 @@ python main.py
 
 ### **更新日志**
 
+2024.03.04:
+
+优化prompt；
+
+去除llm chain逻辑，减少agent与llm chain切换的token浪费；
+
+优化“思考中...”log，方便后续数字人设计更友好的交互逻辑。
+
+集成funASR最新版本
+
 2024.02.19:
 
 增加gpt接口节点配置 (方便接入镜像站)
