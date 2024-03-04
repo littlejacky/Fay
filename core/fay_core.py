@@ -56,14 +56,15 @@ def send_for_answer(msg):
         
         #agent 或llm chain处理
         is_use_say_tool, text = agent_service.agent.run(msg)
+        wsa_server.get_web_instance().add_cmd({"panelMsg": ""})
 
         #语音输入强制语音输出
         if text and "语音说了" in msg and not is_use_say_tool:
             interact = Interact("audio", 1, {'user': '', 'msg': text})
-            fay_booter.feiFei.on_interact(interact)
+            fay_booter.feiFei.on_interact(interact) #语音输出
 
         #消息保存
-        contentdb.add_content("fay", "llm" if agent_service.agent.is_use_llm else "agent", text)
+        contentdb.add_content("fay", "agent", text)
         wsa_server.get_web_instance().add_cmd({"panelReply": {"type":"fay","content":text}})
         util.log(1, 'ReAct Agent或LLM Chain处理总时长：{} ms'.format(math.floor((time.time() - fay_booter.feiFei.last_quest_time) * 1000)))
 

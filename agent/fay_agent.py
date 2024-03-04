@@ -8,13 +8,9 @@ import faiss
 from langchain.docstore import InMemoryDocstore
 from langchain.vectorstores import FAISS
 from langchain.agents import Tool, initialize_agent, agent_types
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
 
 from agent.tools.MyTimer import MyTimer
-from agent.tools.QueryTime import QueryTime
 from agent.tools.Weather import Weather
-from agent.tools.Calculator import Calculator
 from agent.tools.CheckSensor import CheckSensor
 from agent.tools.Switch import Switch
 from agent.tools.Knowledge import Knowledge
@@ -23,7 +19,8 @@ from agent.tools.QueryTimerDB import QueryTimerDB
 from agent.tools.DeleteTimer import DeleteTimer
 from agent.tools.GetSwitchLog import GetSwitchLog
 from agent.tools.getOnRunLinkage import getOnRunLinkage
-from agent.tools.SetChatStatus import SetChatStatus
+from agent.tools.QueryTime import QueryTime
+
 from langchain.callbacks import get_openai_callback
 from langchain.retrievers import TimeWeightedVectorStoreRetriever
 
@@ -63,9 +60,7 @@ class FayAgentCore():
 
         #创建agent chain
         my_timer = MyTimer()
-        query_time_tool = QueryTime()
         weather_tool = Weather()
-        calculator_tool = Calculator()
         check_sensor_tool = CheckSensor()
         switch_tool = Switch()
         knowledge_tool = Knowledge()
@@ -74,7 +69,6 @@ class FayAgentCore():
         delete_timer_tool = DeleteTimer()
         get_switch_log = GetSwitchLog()
         get_on_run_linkage = getOnRunLinkage()
-        set_chat_status_tool = SetChatStatus()
 
         self.tools = [
             Tool(
@@ -82,11 +76,6 @@ class FayAgentCore():
                 func=my_timer.run,
                 description=my_timer.description
             ),
-            # Tool(
-            #     name=query_time_tool.name,
-            #     func=query_time_tool.run,
-            #     description=query_time_tool.description
-            # ),
             Tool(
                 name=weather_tool.name,
                 func=weather_tool.run,
@@ -131,22 +120,13 @@ class FayAgentCore():
                 name=get_on_run_linkage.name,
                 func=get_on_run_linkage.run,
                 description=get_on_run_linkage.description
-            ),
-            Tool(
-                name=set_chat_status_tool.name,
-                func=set_chat_status_tool.run,
-                description=set_chat_status_tool.description
-            ),
+            )
         ]
 
         #agent用于执行任务
         self.agent = initialize_agent(agent_types=agent_types.AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
                          tools=self.tools, llm=self.llm, verbose=True,
                          max_history=5, handle_parsing_errors=True)
-        
-        #llm chain  用于聊天
-        self.is_chat = False#当前是聊天状态
-        self.is_use_llm = False#标记一轮对话是否使用llm回复的
 
         #记录一轮执行有无调用过say tool
         self.is_use_say_tool = False   
@@ -199,32 +179,6 @@ class FayAgentCore():
             result += "--没有记录\n"
 
         return result
-
-    
-    def get_llm_chain(self):
-        tools_prompt = "["
-        tool_names = [tool.name for tool in self.tools if tool.name != SetChatStatus().name and tool.name != Say().name and tool.name != Knowledge().name]
-        tools_prompt += "、".join(tool_names) + "]"
-        template = """
-现在时间是：{now_time}。
-你是一个智慧农业系统中的AI，负责协助主人打理农作物和陪伴主人生活、工作。当主人提出要求时，如果必须使用特定的工具或执行特定的操作，请回复“agent:{human_input}”。如果主人只是进行普通对话或询问信息，直接以文本内容回答即可。你可以使用的工具或执行的任务包括：
-""" +  tools_prompt + "等。" +"""
-请依据以下信息回复主人：
-{chat_history}
-
-input：
-{human_input}
-output："""
-        prompt = PromptTemplate(
-                    input_variables=["human_input", "chat_history", "now_time"], template=template
-                )
-        
-        llm_chain = LLMChain(
-            llm=self.llm,
-            prompt=prompt,
-            verbose=True
-        )
-        return llm_chain
     
     def run(self, input_text):
         self.is_use_say_tool = False
@@ -234,32 +188,18 @@ output："""
         history = self.agent_memory.load_memory_variables({"input":input_text.replace('主人语音说了：', '').replace('主人文字说了：', '')})
         history = self.format_history_str(history)
         try:
-            #判断执行聊天模式还是agent模式，双模式在运行过程中会主动切换
-            if self.is_chat:
-                self.is_use_llm = True
-                llm_chain = self.get_llm_chain()
-                with get_openai_callback() as cb:
-                    result = llm_chain.predict(human_input=input_text.replace('主人语音说了：', '').replace('主人文字说了：', ''), chat_history=history, now_time=QueryTime().run(""))
-                    self.total_tokens = self.total_tokens + cb.total_tokens
-                    self.total_cost = self.total_cost + cb.total_cost
-                    util.log(1, "本次消耗token:{}， Cost (USD):{}，共消耗token:{}， Cost (USD):{}".format(cb.total_tokens, cb.total_cost, self.total_tokens, self.total_cost))
-
-            if "agent:" in result.lower() or not self.is_chat:
-                self.is_use_llm = False
-                self.is_chat = False
-                input_text = result.lower().replace("agent:", "") if "agent:" in result.lower() else input_text.replace('主人语音说了：', '').replace('主人文字说了：', '')
-                agent_prompt = """
-现在时间是：{now_time}。请依据以下信息为主人服务 ：
+            input_text = input_text.replace('主人语音说了：', '').replace('主人文字说了：', '')
+            agent_prompt = """
+现在时间是：{now_time}。你是一个智慧农业系统中的AI，负责协助主人打理农作物和陪伴主人生活、工作。请依据以下信息为主人服务 ：
 {history}
 input：{input_text}
 output：
 """.format(history=history, input_text=input_text, now_time=QueryTime().run(""))
-                print(agent_prompt)
-                with get_openai_callback() as cb:
-                    result = self.agent.run(agent_prompt)
-                    self.total_tokens = self.total_tokens + cb.total_tokens
-                    self.total_cost = self.total_cost + cb.total_cost
-                    util.log(1, "本次消耗token:{}， Cost (USD):{}，共消耗token:{}， Cost (USD):{}".format(cb.total_tokens, cb.total_cost, self.total_tokens, self.total_cost))
+            with get_openai_callback() as cb:
+                result = self.agent.run(agent_prompt)
+                self.total_tokens = self.total_tokens + cb.total_tokens
+                self.total_cost = self.total_cost + cb.total_cost
+                util.log(1, "本次消耗token:{}， Cost (USD):{}，共消耗token:{}， Cost (USD):{}".format(cb.total_tokens, cb.total_cost, self.total_tokens, self.total_cost))
                     
         except Exception as e:
             print(e)
