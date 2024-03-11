@@ -36,7 +36,7 @@ def __clear_timer():
 if __name__ == '__main__':
     __clear_samples()
     __clear_logs()
-    __clear_timer()
+    # __clear_timer()
     
     contentdb = content_db.new_instance()
     contentdb.init_db()     

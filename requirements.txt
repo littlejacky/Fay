@@ -20,7 +20,7 @@ eyed3
 ultralytics~=8.0.2
 pydub
 cemotion
-langchain
+langchain==0.0.336
 faiss-cpu
 openai
 tiktoken
