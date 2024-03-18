@@ -163,22 +163,21 @@ class FeiFei:
                     wsa_server.get_instance().add_cmd(content)
                 return "NO_ANSWER"
 
-        # 人设问答
-        keyword = qa_service.question('Persona',text)
-        if keyword is not None:
-            return config_util.config["attribute"][keyword]
-        
+        #商品问答
         answer = None
+        answer = qa_service.question('goods',text)
+        if answer is not None:
+            return answer
+        
         # 全局问答
         answer = qa_service.question('qa',text)
         if answer is not None:
             return answer
         
-        answer = qa_service.question('goods',text)
-        if answer is not None:
-            return answer
-
-
+        # 人设问答
+        keyword = qa_service.question('Persona',text)
+        if keyword is not None:
+            return config_util.config["attribute"][keyword]
 
     def __auto_speak(self):
         i = 0
