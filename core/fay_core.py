@@ -11,7 +11,6 @@ import logging
 # 适应模型使用
 import numpy as np
 import fay_booter
-from ai_module import xf_ltp
 from ai_module.openai_tts import Speech
 from core import wsa_server
 from core.interact import Interact
@@ -20,7 +19,6 @@ from utils import util, config_util
 
 import pygame
 from utils import config_util as cfg
-from ai_module import nlp_cemotion
 import platform
 from ai_module import yolov8
 from agent import agent_service
@@ -84,8 +82,6 @@ class FeiFei:
         pygame.mixer.init()
         self.q_msg = '你叫什么名字？'
         self.a_msg = 'hi,我叫菲菲，英文名是fay'
-        self.mood = 0.0  # 情绪值
-        self.old_mood = 0.0
         self.connect = False
         self.item_index = 0
         self.deviceSocket = None
@@ -110,7 +106,6 @@ class FeiFei:
         self.last_quest_time = time.time()
         self.playing = False
         self.muting = False
-        self.cemotion = None
 
 
     def __auto_speak(self):
@@ -142,7 +137,6 @@ class FeiFei:
 
     def on_interact(self, interact: Interact):
         self.interactive.append(interact)
-        MyThread(target=self.__update_mood, args=[interact.interact_type]).start()
 
 
     # 适应模型计算(用于学习真人的性格特质，开源版本暂不使用)
@@ -156,75 +150,17 @@ class FeiFei:
             print(self.X.reshape(-1) * self.W.reshape(-1))
         return PRED
 
-    # 发送情绪
-    def __send_mood(self):
-         while self.__running:
-            time.sleep(3)
-            if not self.sleep and not config_util.config["interact"]["playSound"] and wsa_server.get_instance().isConnect:
-                content = {'Topic': 'Unreal', 'Data': {'Key': 'mood', 'Value': self.mood}}
-                if not self.connect:
-                      wsa_server.get_instance().add_cmd(content)
-                      self.connect = True
-                else:
-                    if  self.old_mood != self.mood:
-                        wsa_server.get_instance().add_cmd(content)
-                        self.old_mood = self.mood
-                 
-            else:
-                  self.connect = False
-
-    # 更新情绪
-    def __update_mood(self, typeIndex):
-        perception = config_util.config["interact"]["perception"]
-        if typeIndex == 1:
-            try:
-                if cfg.ltp_mode == "cemotion":
-                    result = nlp_cemotion.get_sentiment(self.cemotion,self.q_msg)
-                    chat_perception = perception["chat"]
-                    if result >= 0.5 and result <= 1:
-                       self.mood = self.mood + (chat_perception / 200.0)
-                    elif result <= 0.2:
-                       self.mood = self.mood - (chat_perception / 100.0)
-                else:
-                    result = xf_ltp.get_sentiment(self.q_msg)
-                    chat_perception = perception["chat"]
-                    if result == 1:
-                        self.mood = self.mood + (chat_perception / 200.0)
-                    elif result == -1:
-                        self.mood = self.mood - (chat_perception / 100.0)
-            except BaseException as e:
-                print("[System] 情绪更新错误！")
-                print(e)
-
-        elif typeIndex == 2:
-            self.mood = self.mood + (perception["join"] / 100.0)
-
-        elif typeIndex == 3:
-            self.mood = self.mood + (perception["gift"] / 100.0)
-
-        elif typeIndex == 4:
-            self.mood = self.mood + (perception["follow"] / 100.0)
-
-        if self.mood >= 1:
-            self.mood = 1
-        if self.mood <= -1:
-            self.mood = -1
-
-    def __get_mood_voice(self):
-        voice = config_util.config["attribute"]["voice"]
-        return voice
-
     # 合成声音
     def __say(self, styleType):
         try:
             if len(self.a_msg) < 1:
                 self.speaking = False
             else:
-                util.printInfo(1, '菲菲', '({}) {}'.format(self.__get_mood_voice(), self.a_msg))
+                util.printInfo(1, '菲菲', '({}) {}'.format(config_util.config["attribute"]["voice"], self.a_msg))
                 if config_util.config["source"]["tts_enabled"]:
                     util.log(1, '合成音频...')
                     tm = time.time()
-                    result = self.sp.to_sample(self.a_msg, self.__get_mood_voice())
+                    result = self.sp.to_sample(self.a_msg, config_util.config["attribute"]["voice"])
                     util.log(1, '合成音频完成. 耗时: {} ms 文件:{}'.format(math.floor((time.time() - tm) * 1000), result))
                     if result is not None:            
                         MyThread(target=self.__send_or_play_audio, args=[result, styleType]).start()
@@ -332,10 +268,6 @@ class FeiFei:
         self.sleep = sleep
 
     def start(self):
-        if cfg.ltp_mode == "cemotion":
-            from cemotion import Cemotion
-            self.cemotion = Cemotion()
-        MyThread(target=self.__send_mood).start()
         MyThread(target=self.__auto_speak).start()
 
 

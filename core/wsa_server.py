@@ -167,6 +167,7 @@ class HumanServer(MyServer):
     def on_connect_handler(self):
         web_server_instance = get_web_instance()  
         web_server_instance.add_cmd({"is_connect": True}) 
+        self.add_cmd({'Topic': 'Unreal', 'Data': {'Key': 'mood', 'Value': 0}})
         
 
     def on_send_handler(self, message):
