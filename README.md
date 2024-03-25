@@ -52,7 +52,7 @@
 pip install -r requirements.txt
 ```
 
-### **配置应用密钥**
+### **配置应用**
 
 + 将GPT-4 key填入 `./system.conf` 中
 
@@ -73,6 +73,9 @@ python main.py
 + 仓库地址：https://github.com/xszyou/fay-android
 
 ### **更新日志**
+2024.03.25:
+
+增加agent工具：python执行器；
 
 2024.03.18:
 

@@ -48,7 +48,7 @@ If you need a digital human assistant for human-computer interaction (and yes, y
 pip install -r requirements.txt
 ```
 
-### **Configuring Application Keys**
+### **Configuring Application**
 
 + Enter your GPT-4 key in `./system.conf` 
 
@@ -68,51 +68,6 @@ Repository URL:https://github.com/xszyou/fay-ue5
 ### **Launch of Android Connector (Optional)**
 Repository URL: https://github.com/xszyou/fay-android
 
-
-### **Changelog**
-2024.02.19:
-
-Add openai base URL configuration ✓
-
-2024.01.08:
-
-Remote audio connection status display ✓
-
-Record time during task execution ✓
-
-Remove calculation tool to prevent errors in time calculation ✓
-
-2024.01.01:
-
-OpenAI token calculation ✓
-
-Optimized ReAct Agent and LLM Chain auto-switching logic ✓
-
-*Added dual memory mechanism: long-term memory stream and short-term chat memory ✓
-
-Fixed record.py ASR bug ✓
-
-Improved stability of remote audio (Android connector) ✓
-
-Fixed execution time calculation bug ✓
-
-Optimized voice output logic ✓
-
-2023.12.25:
-
-Implemented the automatic switching logic between agent ReAct and LLM chain ✓
-
-Distinguished task messages in the chat window ✓
-
-Fixed the bug in deleting schedules ✓
-
-Optimized remote audio logic ✓
-
-Introduced loading effects for pending processes ✓
-
-Optimized prompts to resolve recursive calling issues in schedule tasks ✓
-
-Fixed the bug in clearing one-time schedules ✓
 
 
 ### **Contact**

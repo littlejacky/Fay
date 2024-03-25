@@ -20,6 +20,7 @@ from agent.tools.DeleteTimer import DeleteTimer
 from agent.tools.GetSwitchLog import GetSwitchLog
 from agent.tools.getOnRunLinkage import getOnRunLinkage
 from agent.tools.QueryTime import QueryTime
+from agent.tools.PythonExecutor import PythonExecutor
 
 from langchain.callbacks import get_openai_callback
 from langchain.retrievers import TimeWeightedVectorStoreRetriever
@@ -69,8 +70,14 @@ class FayAgentCore():
         delete_timer_tool = DeleteTimer()
         get_switch_log = GetSwitchLog()
         get_on_run_linkage = getOnRunLinkage()
+        python_executor = PythonExecutor()
 
         self.tools = [
+            Tool(
+                name=python_executor.name,
+                func=python_executor.run,
+                description=python_executor.description
+            ),
             Tool(
                 name=my_timer.name,
                 func=my_timer.run,
