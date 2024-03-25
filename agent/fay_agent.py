@@ -21,6 +21,7 @@ from agent.tools.GetSwitchLog import GetSwitchLog
 from agent.tools.getOnRunLinkage import getOnRunLinkage
 from agent.tools.QueryTime import QueryTime
 from agent.tools.PythonExecutor import PythonExecutor
+from agent.tools.WebPageRetriever import WebPageRetriever
 
 from langchain.callbacks import get_openai_callback
 from langchain.retrievers import TimeWeightedVectorStoreRetriever
@@ -71,7 +72,8 @@ class FayAgentCore():
         get_switch_log = GetSwitchLog()
         get_on_run_linkage = getOnRunLinkage()
         python_executor = PythonExecutor()
-
+        web_page_retriever = WebPageRetriever()
+        
         self.tools = [
             Tool(
                 name=python_executor.name,
@@ -127,6 +129,11 @@ class FayAgentCore():
                 name=get_on_run_linkage.name,
                 func=get_on_run_linkage.run,
                 description=get_on_run_linkage.description
+            ),
+            Tool(
+                name=web_page_retriever.name,
+                func=web_page_retriever.run,
+                description=web_page_retriever.description
             )
         ]
 

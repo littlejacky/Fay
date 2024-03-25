@@ -75,7 +75,7 @@ python main.py
 ### **更新日志**
 2024.03.25:
 
-增加agent工具：python执行器；
+增加agent工具：python执行器、网页检索器；
 
 2024.03.18:
 
