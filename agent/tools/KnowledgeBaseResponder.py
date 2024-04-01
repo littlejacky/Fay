@@ -84,7 +84,7 @@ class KnowledgeBaseResponder(BaseTool):
         try:
             info = cont
             index = self.load_index(index_name)    
-            llm = ChatOpenAI(model="gpt-3.5-turbo-16k")
+            llm = ChatOpenAI(model="gpt-4-0125-preview")
             ans = index.query(info, llm, chain_type="map_reduce")
             return ans
         except Exception as e:
