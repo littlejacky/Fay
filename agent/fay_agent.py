@@ -22,6 +22,8 @@ from agent.tools.getOnRunLinkage import getOnRunLinkage
 from agent.tools.QueryTime import QueryTime
 from agent.tools.PythonExecutor import PythonExecutor
 from agent.tools.WebPageRetriever import WebPageRetriever
+from agent.tools.WebPageScraper import WebPageScraper
+from agent.tools.KnowledgeBaseResponder import KnowledgeBaseResponder
 
 from langchain.callbacks import get_openai_callback
 from langchain.retrievers import TimeWeightedVectorStoreRetriever
@@ -73,6 +75,8 @@ class FayAgentCore():
         get_on_run_linkage = getOnRunLinkage()
         python_executor = PythonExecutor()
         web_page_retriever = WebPageRetriever()
+        web_page_scraper = WebPageScraper()
+        knowledge_base_responder = KnowledgeBaseResponder()
         
         self.tools = [
             Tool(
@@ -134,6 +138,16 @@ class FayAgentCore():
                 name=web_page_retriever.name,
                 func=web_page_retriever.run,
                 description=web_page_retriever.description
+            ),
+            Tool(
+                name=web_page_scraper.name,
+                func=web_page_scraper.run,
+                description=web_page_scraper.description
+            ),
+            Tool(
+                name=knowledge_base_responder.name,
+                func=knowledge_base_responder.run,
+                description=knowledge_base_responder.description
             )
         ]
 

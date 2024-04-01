@@ -24,3 +24,5 @@ langchain==0.0.336
 faiss-cpu
 openai
 tiktoken
+bs4
+chromadb
