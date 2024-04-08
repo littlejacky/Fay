@@ -73,7 +73,11 @@ python main.py
 + 仓库地址：https://github.com/xszyou/fay-android
 
 ### **更新日志**
-2024.03.25:
+2024.04.08:
+
+优化gpt兼容接口（为ue新工程架构准备）。
+
+2024.04.01:
 
 增加agent工具：连接本地知识库（pdf）查询、获取网页内容；
 
