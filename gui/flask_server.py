@@ -64,6 +64,7 @@ def api_get_data():
     config_util.save_config(config_data)
     wsa_server.get_web_instance().add_cmd({
         "voiceList": [
+            {"id": EnumVoice.XIAO_XIAO_NEW.name, "name": "晓晓(azure)"},
             {"id": EnumVoice.XIAO_XIAO.name, "name": "晓晓"},
             {"id": EnumVoice.YUN_XI.name, "name": "云溪"},
             {"id": EnumVoice.YUN_JIAN.name, "name": "云健"},
