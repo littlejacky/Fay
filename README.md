@@ -73,6 +73,13 @@ python main.py
 + 仓库地址：https://github.com/xszyou/fay-android
 
 ### **更新日志**
+
+2024.04.15:
+
+1、前端禁止开启后修改；
+
+2、提高funasr的稳定性。
+
 2024.04.08:
 
 优化gpt兼容接口（为ue新工程架构准备）。
