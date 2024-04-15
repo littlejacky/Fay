@@ -85,7 +85,8 @@ new Vue({
                 value: 'front',
                 label: '前置词'
             }],
-            tts_enabled: true
+            tts_enabled: true,
+            configEditable: true
         }
     },
     created() {
@@ -394,6 +395,7 @@ new Vue({
             this.sendSuccessMsg("配置已保存！")
         },
         postStartLive() {
+            this.configEditable = false;
             this.postData()
             this.live_state = 2
             let url = "http://127.0.0.1:5000/api/start-live";
@@ -403,6 +405,7 @@ new Vue({
             xhr.send()
         },
         postStopLive() {
+            this.configEditable = true;
             this.live_state = 3
             let url = "http://127.0.0.1:5000/api/stop-live";
             let xhr = new XMLHttpRequest()
