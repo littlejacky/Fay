@@ -17,12 +17,11 @@ key_xf_aiui_api_key = None
 key_xf_ltp_app_id = None
 key_xf_ltp_api_key = None
 key_ngrok_cc_id = None
-key_yuan_1_0_account = None
-key_yuan_1_0_phone = None
-key_chatgpt_api_key = None
+key_gpt_api_key = None
+gpt_base_url = None
+gpt_model_engine = None
 key_chat_module = None
 ltp_mode = None
-key_fast_api_key = None
 is_proxy = None
 proxy_config = None
 
@@ -39,14 +38,13 @@ def load_config():
     global key_xf_ltp_app_id
     global key_xf_ltp_api_key
     global key_ngrok_cc_id
-    global key_yuan_1_0_account
-    global key_yuan_1_0_phone
-    global key_chatgpt_api_key
+    global key_gpt_api_key
+    global gpt_model_engine
+    global gpt_base_url
     global key_chat_module
     global key_lingju_api_key
     global key_lingju_api_authcode
     global ltp_mode 
-    global key_fast_gpt_key
     global proxy_config
     global is_proxy
 
@@ -63,14 +61,13 @@ def load_config():
     key_xf_ltp_app_id = system_config.get('key', 'xf_ltp_app_id')
     key_xf_ltp_api_key = system_config.get('key', 'xf_ltp_api_key')
     key_ngrok_cc_id = system_config.get('key', 'ngrok_cc_id')
-    key_yuan_1_0_account = system_config.get('key', 'yuan_1_0_account')
-    key_yuan_1_0_phone = system_config.get('key', 'yuan_1_0_phone')
-    key_chatgpt_api_key = system_config.get('key', 'chatgpt_api_key')
+    gpt_model_engine = system_config.get('key', 'gpt_model_engine')
+    gpt_base_url = system_config.get('key', 'gpt_base_url')
+    key_gpt_api_key = system_config.get('key', 'gpt_api_key')
     key_chat_module = system_config.get('key', 'chat_module')
     key_lingju_api_key = system_config.get('key', 'lingju_api_key')
     key_lingju_api_authcode = system_config.get('key', 'lingju_api_authcode')
     ltp_mode = system_config.get('key', 'ltp_mode')
-    key_fast_gpt_key = system_config.get('key', 'fast_gpt_key')
     proxy_config = system_config.get('key', 'proxy_config')
     is_proxy = system_config.get('key', 'is_proxy')
 

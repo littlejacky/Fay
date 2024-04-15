@@ -29,12 +29,10 @@ from ai_module import nlp_cemotion
 
 #nlp
 from ai_module import nlp_xfaiui
-from ai_module import nlp_yuan
 from ai_module import nlp_gpt
 from ai_module import nlp_lingju
+from ai_module import nlp_rasa
 from ai_module import nlp_ChatGLM2
-from ai_module import nlp_rwkv_api
-from ai_module import nlp_fastgpt
 
 import platform
 if platform.system() == "Windows":
@@ -44,13 +42,10 @@ if platform.system() == "Windows":
 
 modules = {
     "nlp_xfaiui":nlp_xfaiui,
-    "nlp_yuan": nlp_yuan, 
     "nlp_gpt": nlp_gpt,
     "nlp_lingju": nlp_lingju,
+    "nlp_rasa": nlp_rasa,
     "nlp_chatglm2": nlp_ChatGLM2,
-    "nlp_rwkv_api": nlp_rwkv_api,
-    "nlp_fastgpt": nlp_fastgpt
-
 }
 
 

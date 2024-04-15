@@ -71,7 +71,8 @@ new Vue({
                 content: 'Tab 2 content'
             }],
             is_connect: false,
-            remote_audio_connect: false
+            remote_audio_connect: false,
+            configEditable: true
 
         }
     },
@@ -373,6 +374,7 @@ new Vue({
             this.sendSuccessMsg("配置已保存！")
         },
         postStartLive() {
+            this.configEditable = false;
             this.postData()
             this.timer = setTimeout(()=>{   //设置延迟执行
                 this.live_state = 2
@@ -384,6 +386,7 @@ new Vue({
            },1000)
         },
         postStopLive() {
+            this.configEditable = true;
             this.live_state = 3
             let url = "http://127.0.0.1:5000/api/stop-live";
             let xhr = new XMLHttpRequest()

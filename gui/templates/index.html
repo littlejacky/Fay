@@ -35,41 +35,41 @@
                                 <ul>
                                     <li>
                                         <p>姓名：</p>
-                                        <el-input v-model="attribute_name" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_name" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <li>
                                         <p>性别：</p>
-                                        <el-input v-model="attribute_gender" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_gender" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <li>
                                         <p>年龄：</p>
-                                        <el-input v-model="attribute_age" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_age" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
 
                                     <li>
                                         <p>出生地：</p>
-                                        <el-input v-model="attribute_birth" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_birth" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <li>
                                         <p>生肖：</p>
-                                        <el-input v-model="attribute_zodiac" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_zodiac" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <li>
                                         <p>星座：</p>
-                                        <el-input v-model="attribute_constellation" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_constellation" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <li>
                                         <p>职业：</p>
-                                        <el-input v-model="attribute_job" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_job" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <li>
                                         <p>喜好：</p>
-                                        <el-input v-model="attribute_hobby" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_hobby" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
 
                                     <li>
                                         <p>联系方式：</p>
-                                        <el-input v-model="attribute_contact" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="attribute_contact" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                 </ul>
                             </div>
@@ -77,41 +77,41 @@
                                 <ul>
                                     <li style="width: 375px;">
                                         <p>Q&A文件：</p>
-                                        <el-input v-model="interact_QnA" placeholder="请输入内容"></el-input>
+                                        <el-input v-model="interact_QnA" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                     </li>
                                     <br>
                                     <li>
                                         <p>送礼敏感度：</p>
 
-                                        <el-slider v-model="interact_perception_gift"></el-slider>
+                                        <el-slider v-model="interact_perception_gift" :disabled="!configEditable"></el-slider>
 
                                     </li>
                                     <li>
                                         <p>关注敏感度：</p>
-                                        <el-slider v-model="interact_perception_follow"></el-slider>
+                                        <el-slider v-model="interact_perception_follow" :disabled="!configEditable"></el-slider>
                                     </li>
                                     <li>
                                         <p>进入敏感度：</p>
-                                        <el-slider v-model="interact_perception_join"></el-slider>
+                                        <el-slider v-model="interact_perception_join" :disabled="!configEditable"></el-slider>
                                     </li>
                                     <li>
                                         <p>留言敏感度：</p>
-                                        <el-slider v-model="interact_perception_chat"></el-slider>
+                                        <el-slider v-model="interact_perception_chat" :disabled="!configEditable"></el-slider>
                                     </li>
                                     <li>
                                         <p>冷场敏感度：</p>
-                                        <el-slider v-model="interact_perception_indifferent"></el-slider>
+                                        <el-slider v-model="interact_perception_indifferent" :disabled="!configEditable"></el-slider>
                                     </li>
                                     <li>
                                         <p>单次互动时长：</p>
-                                        <el-input-number v-model="interact_maxInteractTime" @change="handleChange" :min="1" :max="60" label="描述文字"></el-input-number>
+                                        <el-input-number v-model="interact_maxInteractTime" @change="handleChange" :min="1" :max="60" label="描述文字" :disabled="!configEditable"></el-input-number>
                                         <span style="    padding-left: 10px;
                                                 line-height: 40px;">秒</span>
                                     </li>
                                     <br>
                                     <li>
                                         <p>声音选择：{{attribute_voice}}</p>
-                                        <el-select v-model="attribute_voice" placeholder="请选择">
+                                        <el-select v-model="attribute_voice" placeholder="请选择" :disabled="!configEditable">
                                             <el-option v-for="item in voice_list" :key="item.value" :label="item.label" :value="item.value">
                                             </el-option>
                                         </el-select>
@@ -140,16 +140,16 @@
                     <div class="source">
                         <ul>
                             <li class="url">
-                                <el-switch v-model="source_liveRoom_enabled" active-color="#13ce66" inactive-color="#ff4949">
+                                <el-switch v-model="source_liveRoom_enabled" active-color="#13ce66" inactive-color="#ff4949" :disabled="!configEditable">
                                 </el-switch>
                                 <p>弹幕地址</p>
-                                <el-input v-model="source_liveRoom_url" placeholder="请输入内容"></el-input>
+                                <el-input v-model="source_liveRoom_url" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                             </li>
                             <li class="url">
-                                <el-switch v-model="source_record_enabled" active-color="#13ce66" inactive-color="#ff4949">
+                                <el-switch v-model="source_record_enabled" active-color="#13ce66" inactive-color="#ff4949" :disabled="!configEditable">
                                 </el-switch>
                                 <p>麦克风</p>
-                                <el-select v-model="source_record_device" placeholder="请选择">
+                                <el-select v-model="source_record_device" placeholder="请选择" :disabled="!configEditable">
                                     <el-option v-for="item in device_list" :key="item.value" :label="item.label"
                                                :value="item.value">
                                     </el-option>
@@ -165,7 +165,7 @@
                                 <el-button v-else-if="live_state == 2" type="primary" plain disabled style="width:200px">正在开启...</el-button>
                                 <el-button v-else-if="live_state == 3" type="success" plain disabled style="width:200px">正在关闭...</el-button>
                                 <el-button v-else type="primary" style="width:200px" class="btn_open" @click=postStartLive()>开启</el-button>
-                                <el-button type="button" style="width:200px" @click=postData()>保存配置</el-button>
+                                <el-button type="button" style="width:200px" @click=postData() :disabled="!configEditable">保存配置</el-button>
                             </li>
                             <li class="p_red" >
                                 <p v-if="is_connect" style="color: #67c23a;"> 数字人：已连接 </p>
@@ -177,62 +177,62 @@
             </div>
             <div class="right">
                 <div class="right_main">
-                    <el-tabs v-model="editableTabsValue" type="card" @tab-click="handleClick" editable @edit="handleTabsEdit">
-                        <el-tab-pane :label="'商品'+(index+1)" :name="itme.tab_name" v-for="(itme, index) in items_data" :key="index">
+                    <el-tabs v-model="editableTabsValue" type="card" @tab-click="handleClick" editable @edit="handleTabsEdit" :disabled="!configEditable">
+                        <el-tab-pane :label="'商品'+(index+1)" :name="itme.tab_name" v-for="(itme, index) in items_data" :key="index" :disabled="!configEditable">
                             <ul>
                                 <li>
                                     <p>名称：</p>
-                                    <el-input v-model='itme.name' placeholder="请输入内容"></el-input>
+                                    <el-input v-model='itme.name' placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                 </li>
                                 <li>
                                     <p>商品简介：</p>
-                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.intro'>
+                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.intro' :disabled="!configEditable">
                                     </el-input>
                                 </li>
                                 <li>
                                     <p>使用场景：</p>
-                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.usage'>
+                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.usage' :disabled="!configEditable">
                                     </el-input>
                                 </li>
                                 <li>
                                     <p>售价说明：</p>
-                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.price'>
+                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.price' :disabled="!configEditable">
                                     </el-input>
                                 </li>
                                 <li>
                                     <p>促销：</p>
-                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.discount'>
+                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.discount' :disabled="!configEditable">
                                     </el-input>
                                 </li>
                                 <li>
                                     <p>主播担保：</p>
-                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.promise'>
+                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.promise' :disabled="!configEditable">
                                     </el-input>
                                 </li>
                                 <li>
                                     <p>商品特点：</p>
-                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.character'>
+                                    <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model='itme.explain.character' :disabled="!configEditable">
                                     </el-input>
                                 </li>
                                 <li>
                                     <p>展示视频：</p>
-                                    <el-input v-model="itme.demoVideo" placeholder="请输入内容"></el-input>
+                                    <el-input v-model="itme.demoVideo" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                 </li>
                                 <li>
                                     <p>Q&A文件：</p>
-                                    <el-input v-model="itme.QnA" placeholder="请输入内容"></el-input>
+                                    <el-input v-model="itme.QnA" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                 </li>
                                 <li>
                                     <p>商品标识：</p>
-                                    <el-input v-model="itme.img" placeholder="请输入内容"></el-input>
+                                    <el-input v-model="itme.img" placeholder="请输入内容" :disabled="!configEditable"></el-input>
                                 </li>
                                 <li>
                                     <p>是否启用：</p>
-                                    <el-switch v-model='itme.enabled' active-color="#13ce66" inactive-color="#ff4949">
+                                    <el-switch v-model='itme.enabled' active-color="#13ce66" inactive-color="#ff4949" :disabled="!configEditable">
                                     </el-switch>
                                 </li>
                             </ul>
-                            <div  style="text-align: center;margin-bottom: 4px;"><el-button type="button" style="width:200px" @click=postData()>保存</el-button></div>
+                            <div  style="text-align: center;margin-bottom: 4px;"><el-button type="button" style="width:200px" @click=postData() :disabled="!configEditable">保存</el-button></div>
 
                         </el-tab-pane>
                     </el-tabs>
