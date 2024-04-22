@@ -37,6 +37,8 @@ class FayAgentCore():
         utils.load_config()
         os.environ['OPENAI_API_KEY'] = utils.key_gpt_api_key
         os.environ['OPENAI_API_BASE'] = utils.gpt_base_url
+        if str(utils.is_proxy) == '1':
+            os.environ["OPENAI_PROXY"] = utils.proxy_config
         #使用open ai embedding
         embedding_size = 1536  # OpenAIEmbeddings 的维度
         index = faiss.IndexFlatL2(embedding_size)
