@@ -12,6 +12,7 @@ from gui.window import MainWindow
 from utils import config_util
 from scheduler.thread_manager import MyThread
 from core import fay_core
+import time
 
 def __clear_samples():
     if not os.path.exists("./samples"):
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon('icon.png'))
     win = MainWindow()
+    time.sleep(1)
     win.show()
     app.exit(app.exec_())
 
