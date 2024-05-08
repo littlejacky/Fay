@@ -25,6 +25,7 @@ from agent.tools.WebPageRetriever import WebPageRetriever
 from agent.tools.WebPageScraper import WebPageScraper
 from agent.tools.KnowledgeBaseResponder import KnowledgeBaseResponder
 
+
 from langchain.callbacks import get_openai_callback
 from langchain.retrievers import TimeWeightedVectorStoreRetriever
 
@@ -37,7 +38,7 @@ class FayAgentCore():
         utils.load_config()
         os.environ['OPENAI_API_KEY'] = utils.key_gpt_api_key
         os.environ['OPENAI_API_BASE'] = utils.gpt_base_url
-        if str(utils.is_proxy) == '1':
+        if str(utils.proxy_config) != '':
             os.environ["OPENAI_PROXY"] = utils.proxy_config
         #使用open ai embedding
         embedding_size = 1536  # OpenAIEmbeddings 的维度
@@ -45,7 +46,7 @@ class FayAgentCore():
         embedding_fn = OpenAIEmbeddings()
 
         #创建llm
-        self.llm = ChatOpenAI(model="gpt-4-0125-preview", verbose=True)
+        self.llm = ChatOpenAI(model=utils.gpt_model_engine, verbose=True)
 
         #创建向量数据库
         def relevance_score_fn(score: float) -> float:
@@ -79,6 +80,7 @@ class FayAgentCore():
         web_page_retriever = WebPageRetriever()
         web_page_scraper = WebPageScraper()
         knowledge_base_responder = KnowledgeBaseResponder()
+
         
         self.tools = [
             Tool(

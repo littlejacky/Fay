@@ -14,7 +14,7 @@ gpt_base_url = None
 ASR_mode = None
 local_asr_ip = None 
 local_asr_port = None 
-is_proxy = None
+gpt_model_engine = None
 proxy_config = None
 
 def load_config():
@@ -30,7 +30,7 @@ def load_config():
     global local_asr_ip 
     global local_asr_port
     global proxy_config
-    global is_proxy
+    global gpt_model_engine
 
     system_config = ConfigParser()
     system_config.read('system.conf', encoding='UTF-8')
@@ -44,7 +44,7 @@ def load_config():
     local_asr_ip = system_config.get('key', 'local_asr_ip')
     local_asr_port = system_config.get('key', 'local_asr_port')
     proxy_config = system_config.get('key', 'proxy_config')
-    is_proxy = system_config.get('key', 'is_proxy')
+    gpt_model_engine = system_config.get('key', 'gpt_model_engine')
     config = json.load(codecs.open('config.json', encoding='utf-8'))
 
 def save_config(config_data):
