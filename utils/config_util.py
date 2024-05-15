@@ -12,8 +12,6 @@ key_ali_nls_key_secret = None
 key_ali_nls_app_key = None
 key_ms_tts_key = None
 Key_ms_tts_region = None
-key_xf_aiui_app_id = None
-key_xf_aiui_api_key = None
 baidu_emotion_app_id = None
 baidu_emotion_api_key = None
 baidu_emotion_secret_key = None
@@ -34,8 +32,6 @@ def load_config():
     global key_ali_nls_app_key
     global key_ms_tts_key
     global key_ms_tts_region
-    global key_xf_aiui_app_id
-    global key_xf_aiui_api_key
     global baidu_emotion_app_id
     global baidu_emotion_secret_key
     global baidu_emotion_api_key
@@ -58,8 +54,6 @@ def load_config():
     key_ali_nls_app_key = system_config.get('key', 'ali_nls_app_key')
     key_ms_tts_key = system_config.get('key', 'ms_tts_key')
     key_ms_tts_region  = system_config.get('key', 'ms_tts_region')
-    key_xf_aiui_app_id = system_config.get('key', 'xf_aiui_app_id')
-    key_xf_aiui_api_key = system_config.get('key', 'xf_aiui_api_key')
     baidu_emotion_app_id = system_config.get('key', 'baidu_emotion_app_id')
     baidu_emotion_api_key = system_config.get('key', 'baidu_emotion_api_key')
     baidu_emotion_secret_key = system_config.get('key', 'baidu_emotion_secret_key')

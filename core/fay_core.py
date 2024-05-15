@@ -28,7 +28,6 @@ from core import qa_service
 from ai_module import nlp_cemotion
 
 #nlp
-from ai_module import nlp_xfaiui
 from ai_module import nlp_gpt
 from ai_module import nlp_lingju
 from ai_module import nlp_rasa
@@ -41,7 +40,6 @@ if platform.system() == "Windows":
     from test_olipsync import LipSyncGenerator
 
 modules = {
-    "nlp_xfaiui":nlp_xfaiui,
     "nlp_gpt": nlp_gpt,
     "nlp_lingju": nlp_lingju,
     "nlp_rasa": nlp_rasa,
@@ -411,16 +409,19 @@ class FeiFei:
                     elif result <= 0.2:
                        self.mood = self.mood - (chat_perception / 100.0)
                 else:
-                    result = int(baidu_emotion.get_sentiment(self.q_msg))
-                    chat_perception = perception["chat"]
-                    if result >= 2:
-                        self.mood = self.mood + (chat_perception / 200.0)
-                    elif result == 0:
-                        self.mood = self.mood - (chat_perception / 100.0)
+                    if str(cfg.baidu_emotion_api_key) == '' or str(cfg.baidu_emotion_app_id) == '' or str(cfg.baidu_emotion_secret_key) == '':
+                        self.mood = 0
+                    else:
+                        result = int(baidu_emotion.get_sentiment(self.q_msg))
+                        chat_perception = perception["chat"]
+                        if result >= 2:
+                            self.mood = self.mood + (chat_perception / 200.0)
+                        elif result == 0:
+                            self.mood = self.mood - (chat_perception / 100.0)
             except BaseException as e:
                 print("[System] 情绪更新错误！")
                 print(e)
-                self.mood = 1
+                self.mood = 0
 
         elif typeIndex == 2:
             self.mood = self.mood + (perception["join"] / 100.0)

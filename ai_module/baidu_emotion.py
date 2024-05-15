@@ -45,18 +45,18 @@ class Emotion:
                 r = requests.post(url, headers=headers,  data=req)
                 if r.status_code != 200:
                     util.log(1, f"百度情感分析对接有误: {r.text}")
-                    return 1
+                    return 0
                 info = json.loads(r.text)
                 if not self.has_field(info,'error_code'):
                     return info['items'][0]['sentiment']
                 else:
                     util.log(1, f"百度情感分析对接有误： {info['error_msg']}") 
-                    return 1
+                    return 0
             except Exception as e:
                 util.log(1, f"百度情感分析对接有误： {str(e)}")           
-                return 1
+                return 0
         else:
-            return 1
+            return 0
 
     def __check_token(self):
         self.authorize_tb.init_tb()
