@@ -12,7 +12,6 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 import json
 
 httpproxy = cfg.proxy_config
-proxy_flag = str(cfg.is_proxy) 
 
 def question(cont,communication_history=[]):
     url= cfg.gpt_base_url + "/chat/completions"
@@ -20,7 +19,7 @@ def question(cont,communication_history=[]):
     session = requests.Session()
     session.verify = False
 
-    if proxy_flag == '1':
+    if str(httpproxy) != '':
             session.proxies = {
                 "https": "https://" + httpproxy,
                 "http": "http://" + httpproxy
