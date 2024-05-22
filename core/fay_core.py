@@ -56,10 +56,9 @@ def send_for_answer(msg):
         is_use_say_tool, text = agent_service.agent.run(msg)
         wsa_server.get_web_instance().add_cmd({"panelMsg": ""})
 
-        #语音输入强制语音输出
-        if text and "语音说了" in msg and not is_use_say_tool:
-            interact = Interact("audio", 1, {'user': '', 'msg': text})
-            fay_booter.feiFei.on_interact(interact) #语音输出
+      
+        interact = Interact("audio", 1, {'user': '', 'msg': text})
+        fay_booter.feiFei.on_interact(interact) 
 
         #消息保存
         contentdb.add_content("fay", "agent", text)

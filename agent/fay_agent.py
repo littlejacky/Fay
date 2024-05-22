@@ -14,7 +14,6 @@ from agent.tools.Weather import Weather
 from agent.tools.CheckSensor import CheckSensor
 from agent.tools.Switch import Switch
 from agent.tools.Knowledge import Knowledge
-from agent.tools.Say import Say
 from agent.tools.QueryTimerDB import QueryTimerDB
 from agent.tools.DeleteTimer import DeleteTimer
 from agent.tools.GetSwitchLog import GetSwitchLog
@@ -24,6 +23,7 @@ from agent.tools.PythonExecutor import PythonExecutor
 from agent.tools.WebPageRetriever import WebPageRetriever
 from agent.tools.WebPageScraper import WebPageScraper
 from agent.tools.KnowledgeBaseResponder import KnowledgeBaseResponder
+from agent.tools.ToUfo import ToUfo
 
 
 from langchain.callbacks import get_openai_callback
@@ -71,7 +71,6 @@ class FayAgentCore():
         check_sensor_tool = CheckSensor()
         switch_tool = Switch()
         knowledge_tool = Knowledge()
-        say_tool = Say()
         query_timer_db_tool = QueryTimerDB()
         delete_timer_tool = DeleteTimer()
         get_switch_log = GetSwitchLog()
@@ -80,6 +79,7 @@ class FayAgentCore():
         web_page_retriever = WebPageRetriever()
         web_page_scraper = WebPageScraper()
         knowledge_base_responder = KnowledgeBaseResponder()
+        to_ufo = ToUfo()
 
         
         self.tools = [
@@ -112,11 +112,6 @@ class FayAgentCore():
                 name=knowledge_tool.name,
                 func=knowledge_tool.run,
                 description=knowledge_tool.description
-            ),
-            Tool(
-                name=say_tool.name,
-                func=say_tool.run,
-                description=say_tool.description
             ),
             Tool(
                 name=query_timer_db_tool.name,
@@ -152,6 +147,11 @@ class FayAgentCore():
                 name=knowledge_base_responder.name,
                 func=knowledge_base_responder.run,
                 description=knowledge_base_responder.description
+            ),
+            Tool(
+                name=to_ufo.name,
+                func=to_ufo.run,
+                description=to_ufo.description
             )
         ]
 
@@ -160,9 +160,9 @@ class FayAgentCore():
                          tools=self.tools, llm=self.llm, verbose=True,
                          max_history=5, handle_parsing_errors=True)
 
-        #记录一轮执行有无调用过say tool
-        self.is_use_say_tool = False   
-        self.say_tool_text = ""
+        # #记录一轮执行有无调用过say tool
+        # self.is_use_say_tool = False   
+        # self.say_tool_text = ""
 
         self.total_tokens = 0
         self.total_cost = 0
@@ -213,8 +213,8 @@ class FayAgentCore():
         return result
     
     def run(self, input_text):
-        self.is_use_say_tool = False
-        self.say_tool_text = ""
+        # self.is_use_say_tool = False
+        # self.say_tool_text = ""
         
         result = ""
         history = self.agent_memory.load_memory_variables({"input":input_text.replace('主人语音说了：', '').replace('主人文字说了：', '')})
@@ -237,7 +237,7 @@ output：
             print(e)
         
         result = "执行完毕" if result is None or result == "N/A" else result
-        chat_text = self.say_tool_text if self.is_use_say_tool else result
+        chat_text = result
 
         #保存到记忆流和聊天对话
         self.agent_memory.save_context({"input": input_text.replace('主人语音说了：', '').replace('主人文字说了：', '')},{"output": result})
@@ -245,7 +245,7 @@ output：
         if len(self.chat_history) > 5:
             self.chat_history.pop(0)
 
-        return self.is_use_say_tool, chat_text
+        return False, chat_text
 
 if __name__ == "__main__":
     agent = FayAgentCore()
