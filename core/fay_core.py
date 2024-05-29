@@ -180,87 +180,121 @@ class FeiFei:
             if self.speaking or self.sleep:
                 continue
             try:
-                # 简化逻辑：默认执行带货脚本，带货脚本执行其间有人互动，则执行完当前脚本就回应最后三条互动，回应完继续执行带货脚本
-                if ( i < 3 and len(self.interactive) > 0):
-                    i += 1
-                    interact: Interact = self.interactive.pop(len(self.interactive)-1)
-                    if interact.interact_type == 1:
-                        self.q_msg = interact.data["msg"]
-                    index = interact.interact_type
-                    # print("index:{0}".format(index))
-                    user_name = interact.data["user"]
-                    # self.__isExecute = True #!!!!
+                if i < 3 and self.interactive:
+                    interactions_to_handle = self.interactive[-3:] if len(self.interactive) > 3 else self.interactive
+                    for interact in interactions_to_handle:
+                        i += 1
+                        self.interactive.remove(interact)
+                        user_name = interact.data.get("user", "")
+                        interact_type = interact.interact_type
+                        self.q_msg = interact.data.get("msg", "")
+                        if interact_type == 1:
+                            if not config_util.config["interact"]["playSound"]:
+                                wsa_server.get_instance().add_cmd({'Topic': 'Unreal', 'Data': {'Key': 'question', 'Value': self.q_msg}})
+                            answer = self.__get_answer(interact.interleaver, self.q_msg)
+                            text = answer if answer and answer != 'NO_ANSWER' else determine_nlp_strategy(self.q_msg, self.chat_list[user_name]["history"])
+                            self.a_msg = f"{user_name}，{text}" if user_name else text
+                            self.chat_list[user_name]["history"].append({"role": "bot", "content": text})
 
-                    if index == 1:
-                        if not config_util.config["interact"]["playSound"]: # 非展板播放
-                            content = {'Topic': 'Unreal', 'Data': {'Key': 'question', 'Value': self.q_msg}}
-                            wsa_server.get_instance().add_cmd(content)
-                        answer = self.__get_answer(interact.interleaver, self.q_msg)
-                        if self.muting:
-                            continue
-                        text = ''
-                        if answer is None:
-                            wsa_server.get_web_instance().add_cmd({"panelMsg": "思考中..."})
-                            if not cfg.config["interact"]["playSound"]: # 非展板播放
-                                content = {'Topic': 'Unreal', 'Data': {'Key': 'log', 'Value': "思考中..."}}
-                                wsa_server.get_instance().add_cmd(content)
-                            text = determine_nlp_strategy(self.q_msg,self.chat_list[user_name]["history"])
-                            
-                        elif answer != 'NO_ANSWER':
-                            text = answer
-                        if len(user_name) == 0:
-                            self.a_msg = text
-                        else:
-                            self.a_msg = user_name + '，' + text
-                            
-                        answer_info = dict()
-                        answer_info["role"] = "bot"
-                        answer_info["content"] = text
-                        self.chat_list[user_name]["history"].append(answer_info)
-                       
-                    elif index == 2:
-                        self.a_msg = ['新来的宝贝记得点点关注噢！么么哒！', '我的宝贝{}欢迎你来到直播间，欢迎欢迎！'.format(user_name), '欢迎{}宝贝来到我们的直播间，记得点点关注，给主播加加油噢！'.format(user_name)][
-                            random.randint(0, 2)]
-                        
-                    elif index == 3:
-                        gift = interact.data["gift"]
-                        self.a_msg = '感谢感谢，感谢 {}送给我的{}个{}'.format(interact.data["user"], interact.data["amount"], gift)
-                        self.a_msg = ['太感谢宝宝 {}送我的{}！祝宝宝财运追着跑！运气乐逍遥！'.format(interact.data["user"],  gift), 
-                                      '太感谢我的小可爱 {}送我的{}！宝贝你真牛！真大气！'.format(interact.data["user"],  gift), 
-                                      '哇！太感谢宝宝{}送我的{}！不服天！不服地！就服宝宝的实力！'.format(interact.data["user"],  gift),
-                                      '太感谢{}老板送我的{}！老板破费了！老板大气！'.format(interact.data["user"],  gift),
-                                      '太感谢我的好朋友{}送我的{}！祝您福气满满！微笑甜甜！'.format(interact.data["user"],  gift),
-                                      '哇！太感谢{}送我的{}！太感谢了！我的好朋友！祝您才华四溢！'.format(interact.data["user"],  gift),
-                                      '感谢{}送我的{}！太感谢了！我的好朋友！主播好开心！么么哒！'.format(interact.data["user"],  gift),
-                                      '哇！太感谢我的小可爱{}送我的{}！祝您元气满满！开心快乐！'.format(interact.data["user"],  gift),
-                                      '一口气感谢了那么多礼物！真的太开心了！谢谢宝宝们的礼物！',
-                                      ][random.randint(0, 8)]
+                        elif interact_type == 2:
+                            self.a_msg = random.choice([
+                                '新来的宝贝记得点点关注噢！么么哒！',
+                                f'我的宝贝{user_name}欢迎你来到直播间，欢迎欢迎！',
+                                f'欢迎{user_name}宝贝来到我们的直播间，记得点点关注，给主播加加油噢！',
+                                f'咦！我看见{user_name}观众姥爷来到我们的直播间，你好啊！',
+                                f'欢迎{user_name}观众姥爷！记得多点来看看我噢！',
+                                f'亲爱的{user_name}，欢迎来到我的直播间！希望你在这里玩的开心！',
+                                f'嘿嘿，{user_name}来啦！欢迎欢迎，记得点个关注哦！',
+                                f'欢迎{user_name}来到直播间！希望你喜欢这里的内容，记得多多互动哦！',
+                                f'欢迎欢迎{user_name}！谢谢你来支持我，别忘了点关注哦！',
+                                f'欢迎亲爱的{user_name}！谢谢你！终于记起大明湖畔的我了！',
+                                f'{user_name}你来啦！你是小哥哥还是小姐姐啊！',
+                                f'嘿嘿，{user_name}小可爱，欢迎来到我的直播间！记得点关注，不然我可要捣蛋啦！',
+                                f'哇哦，{user_name}，你是风儿我是沙，快来点关注，么么哒！',
+                                f'欢迎欢迎{user_name}！点关注，给我点动力，不然我就要耍赖啦！',
+                                f'欢迎{user_name}宝宝！快点关注，不然我要撒娇啦！',
+                                f'咦？是{user_name}大驾光临！快点关注，不然我就不让你走啦！',
+                                f'哇哦，{user_name}你终于来了！记得多多互动，不然我要哭给你看啦！',
+                                f'呀，{user_name}宝宝，欢迎你来玩！别忘了点关注哦，不然我就要闹脾气啦！'
+                            ])
 
-                    elif index == 4:
-                        self.a_msg = ['太感谢我的{}小可爱的关注！主播好开心！么么哒！'.format(user_name), '我的天啊！太感谢{}宝贝的关注！宝贝宝贝6！6！6！主播给你一路护航！'.format(user_name), '太开心了！谢谢{}宝宝的关注！祝宝宝天天开心！'.format(user_name)][
-                            random.randint(0, 2)]
-                       
+                        elif interact_type == 3:
+                            gift = interact.data["gift"]
+                            self.a_msg = random.choice([
+                                f'太感谢宝宝 {user_name}送我的{gift}！祝宝宝财运追着跑！运气乐逍遥！',
+                                f'太感谢我的小可爱 {user_name}送我的{gift}！宝贝你真牛！真大气！',
+                                f'哇！太感谢宝宝{user_name}送我的{gift}！不服天！不服地！就服宝宝的实力！',
+                                f'太感谢{user_name}老板送我的{gift}！老板破费了！老板大气！',
+                                f'太感谢我的好朋友{user_name}送我的{gift}！祝您福气满满！微笑甜甜！',
+                                f'哇！太感谢{user_name}送我的{gift}！太感谢了！我的好朋友！祝您才华四溢！',
+                                f'感谢{user_name}送我的{gift}！太感谢了！我的好朋友！主播好开心！么么哒！',
+                                f'哇！太感谢我的小可爱{user_name}送我的{gift}！祝您元气满满！开心快乐！',
+                                '一口气感谢了那么多礼物！真的太开心了！谢谢宝宝们的礼物！',
+                                f'哇，{user_name}送的{gift}真是让主播惊喜连连！谢谢你！',
+                                f'谢谢{user_name}的{gift}！你的支持是主播前进的动力！'
+                                f'哇，感谢{user_name}送的{gift}！愿你每天都充满快乐和惊喜！'
+                                f'谢谢{user_name}的{gift}！你的慷慨让主播感到非常感动！',
+                                f'感谢亲爱的{user_name}送的{gift}，你是不是偷偷喜欢我呀？嘿嘿！',
+                                f'哇，{user_name}送的{gift}让我激动到原地转圈圈！',
+                                f'谢谢{user_name}送的{gift}，你这么宠我，我都要飘了！',
+                                f'感谢{user_name}送的{gift}，你是不是要把我宠上天？',
+                                f'谢谢{user_name}送的{gift}，你这么好，让我怎么办呢？嘿嘿！',
+                                f'感谢{user_name}送的{gift}，你真是我的超级英雄！',
+                                f'谢谢{user_name}送的{gift}，你真是太棒了！抱抱你！'
+                            ])
 
-                    elif index == 5:
-                        self.a_msg = ['收到那么多礼物！主播真的太开心了！谢谢宝宝们的礼物！不服天！不服地！就服宝宝们的实力',
-                                       '哇！收到这么多礼物！主播好开心！谢谢宝宝们！'][
-                        random.randint(0, 2)]
+                        elif interact_type == 4:
+                            self.a_msg = random.choice([
+                                f'太感谢我的{user_name}小可爱的关注！主播好开心！么么哒！',
+                                f'我的天啊！太感谢{user_name}宝贝的关注！宝贝宝贝6！6！6！主播给你一路护航！',
+                                f'太开心了！谢谢{user_name}宝宝的关注！祝宝宝天天开心！'
+                            ])
 
-                    elif index == 6:
-                        self.a_msg = ['感谢宝贝们的赞赞，比心比心', '谢谢我的宝宝{}的连续点赞了，谢谢你！'.format(user_name), '太感谢宝宝{}的赞赞啦！'.format(user_name)][
-                            random.randint(0, 2)]
-                    elif index == 7:
-                        self.a_msg = ['看见下面不要钱的辣条了吗？点一点！谁点得多！就是主播最好的朋友!', 
-                                      '咦?怎么没人点赞啦?点点支持一下主播!主播十分需要你这个朋友!',
-                                      '给个小礼物！主播给你画个心喔！',
-                                      '主播这么勤快！还不点点关注？',
-                                      '宝宝们！快来点点赞！谁能点够100下就是主播最好最好的朋友了！',
-                                      '各位宝宝们！点点赞，给主播加加油吧！',
-                                      '观众姥爷们!快关注起来！助力主播进步一点点！'][
-                            random.randint(0, 6)]
-                    self.last_speak_data = self.a_msg
-                    self.speaking = True
-                    MyThread(target=self.__say, args=['interact']).start()
+                        elif interact_type == 5:
+                            self.a_msg = random.choice([
+                                '收到那么多礼物！主播真的太开心了！谢谢宝宝们的礼物！不服天！不服地！就服宝宝们的实力',
+                                '哇！收到这么多礼物！主播好开心！谢谢宝宝们！',
+                                '哇塞，太多礼物了！简直开心得让主播飞起来了！谢谢观众姥爷们！'
+                            ])
+
+                        elif interact_type == 6:
+                            self.a_msg = random.choice([
+                                '感谢宝贝们的赞赞，比心比心！',
+                                f'谢谢我的宝宝{user_name}的连续点赞了，谢谢你！',
+                                f'太感谢宝宝{user_name}的赞赞啦！',
+                                '看啊！一闪一闪小赞赞！漫天都是小赞赞！'
+                            ])
+
+                        elif interact_type == 7:
+                            self.a_msg = random.choice([
+                                '看见下面不要钱的辣条了吗？点一点！就是主播的好朋友!',
+                                '咦?怎么没人点赞啦?点点支持一下主播!主播十分需要你这个朋友!',
+                                '给个小礼物！主播给你画个心喔！',
+                                '主播这么勤快！还不点点关注？',
+                                '宝宝们！快来点点赞！谁能点够100下就是主播最好最好的朋友了！',
+                                '各位宝宝们！点点赞，给主播加加油吧！',
+                                '观众姥爷们!快关注起来！助力主播进步一点点！',
+                                '亲爱的观众朋友们，关注一下，支持主播进步多多！',
+                                '宝宝们，点赞和关注对主播来说是最好的支持哦！',
+                                '宝宝们，看到下面的礼物吗？点一点，让主播感受到你的爱！',
+                                '有没有小可爱愿意送个小礼物？感谢你们的支持！',
+                                '点点关注，不仅支持主播，还能第一时间看到最新直播内容哦！',
+                                '宝宝们，点赞和关注对主播来说真的很重要，感谢大家的支持！',
+                                '各位亲爱的朋友们，给主播送点小礼物吧，让我们一起嗨起来！',
+                                '亲爱的观众朋友们，关注一下，支持主播，不然我要闹小脾气啦！',
+                                '有没有小可爱愿意送个小礼物？主播会开心到飞起来哦！',
+                                '嘿，看到没人点关注，主播心里可是会嘀咕嘀咕的哦！',
+                                '观众姥爷们，关注一下吧，支持主播搞笑不停，不然我要耍赖啦！',
+                                '各位宝宝们，送点小礼物，给主播加加油，不然我要假哭啦！',
+                                '宝宝们，看见不要钱的点赞按钮了吗？快点一下，主播会给你一个大大的wink！',
+                                '各位小可爱们，送送礼物，给主播加加油，不然主播要假装哭泣啦！'
+                            ])
+
+                        self.last_speak_data = self.a_msg
+                        self.speaking = True
+                        MyThread(target=self.__say, args=['interact']).start()
+                        if len(interactions_to_handle) <= 1:
+                            break
                 else:
                     i = 0
                     self.interactive.clear()
@@ -292,8 +326,7 @@ class FeiFei:
                             MyThread(target=self.__say, args=['script']).start()
             except BaseException as e:
                 print(e)
-
-
+           
 
     def __get_explain_from_index(self, index: int):
         if index == 0:
