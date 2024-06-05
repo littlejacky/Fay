@@ -28,7 +28,7 @@ if platform.system() == "Windows":
     import sys
     sys.path.append("test/ovr_lipsync")
     from test_olipsync import LipSyncGenerator
-    
+
 
 #文本消息处理（20231211增加：agent操作）
 def send_for_answer(msg):
@@ -66,10 +66,9 @@ def send_for_answer(msg):
         util.log(1, 'ReAct Agent或LLM Chain处理总时长：{} ms'.format(math.floor((time.time() - fay_booter.feiFei.last_quest_time) * 1000)))
 
         #推送数字人
-        if not cfg.config["interact"]["playSound"]: 
+        if not config_util.config["interact"]["playSound"]: 
             content = {'Topic': 'Unreal', 'Data': {'Key': 'log', 'Value': text}}
             wsa_server.get_instance().add_cmd(content)
-        if not config_util.config["interact"]["playSound"]: 
             content = {'Topic': 'Unreal', 'Data': {'Key': 'text', 'Value': text}}
             wsa_server.get_instance().add_cmd(content)
 
@@ -136,8 +135,12 @@ class FeiFei:
 
     def on_interact(self, interact: Interact):
         self.interactive.append(interact)
-
-
+   
+    def send_to_panel(self, msg):
+        contentdb = content_db.new_instance()
+        contentdb.add_content("fay", "agent_handling", msg)
+        wsa_server.get_web_instance().add_cmd({"panelReply": {"type": "fay","content": msg}})
+    
     # 适应模型计算(用于学习真人的性格特质，开源版本暂不使用)
     def __fay(self, index):
         if 0 < index < 8:

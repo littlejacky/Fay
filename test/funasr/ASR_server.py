@@ -57,9 +57,17 @@ async def worker():
         task_queue.task_done()
 
 async def process_wav_file(websocket, url):
+    #热词
+    param_dict = {"sentence_timestamp": False}
+    with open("data/hotword.txt", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        lines = [line.strip() for line in lines]
+    hotword = " ".join(lines)
+    print(f"热词：{hotword}")
+    param_dict["hotword"] = hotword
     wav_path = url
     try:
-        res = asr_model.generate(input=wav_path)
+        res = asr_model.generate(input=wav_path,is_final=True, **param_dict)
         if res:
             if 'text' in res[0] and websocket.open:
                 await websocket.send(res[0]['text'])

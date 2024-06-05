@@ -23,7 +23,7 @@ from agent.tools.PythonExecutor import PythonExecutor
 from agent.tools.WebPageRetriever import WebPageRetriever
 from agent.tools.WebPageScraper import WebPageScraper
 from agent.tools.KnowledgeBaseResponder import KnowledgeBaseResponder
-from agent.tools.ToUfo import ToUfo
+from agent.tools.SendToPanel import SendToPanel
 
 
 from langchain.callbacks import get_openai_callback
@@ -79,7 +79,7 @@ class FayAgentCore():
         web_page_retriever = WebPageRetriever()
         web_page_scraper = WebPageScraper()
         knowledge_base_responder = KnowledgeBaseResponder()
-        to_ufo = ToUfo()
+        send_to_panel = SendToPanel()
 
         
         self.tools = [
@@ -149,9 +149,9 @@ class FayAgentCore():
                 description=knowledge_base_responder.description
             ),
             Tool(
-                name=to_ufo.name,
-                func=to_ufo.run,
-                description=to_ufo.description
+                name=send_to_panel.name,
+                func=send_to_panel.run,
+                description=send_to_panel.description
             )
         ]
 
